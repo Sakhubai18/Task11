@@ -1,0 +1,66 @@
+import java.util.Scanner;
+
+public class ATMInterface {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ATM atm = new ATM();
+
+        System.out.println("Welcome to the ATM!");
+
+        while (true) {
+            System.out.print("Enter your user ID: ");
+            String userId = scanner.nextLine();
+
+            System.out.print("Enter your PIN: ");
+            int pin = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
+            if (atm.authenticateUser(userId, pin)) {
+                atm.setCurrentUser(userId);
+                System.out.println("Login successful!");
+
+                displayMenu();
+
+                while (true) {
+                    System.out.print("Enter your choice: ");
+                    int choice = scanner.nextInt();
+                    scanner.nextLine(); // Consume the newline character
+
+                    switch (choice) {
+                        case 1:
+                            atm.displayTransactionHistory();
+                            break;
+                        case 2:
+                            atm.withdraw(scanner);
+                            break;
+                        case 3:
+                            atm.deposit(scanner);
+                            break;
+                        case 4:
+                            atm.transfer(scanner);
+                            break;
+                        case 5:
+                            System.out.println("Thank you for using the ATM. Goodbye!");
+                            System.exit(0);
+                        default:
+                            System.out.println("Invalid choice. Please try again.");
+                            break;
+                    }
+
+                    displayMenu();
+                }
+            } 
+			else {
+                System.out.println("Invalid user ID or PIN. Please try again.");
+            }
+        }
+    }
+
+    private static void displayMenu() {
+        System.out.println("\nATM Menu:");
+        System.out.println("1. View Transaction History");
+        System.out.println("2. Withdraw");
+        System.out.println("3. Deposit");
+        System.out.println("4. Transfer");
+        System.out.println("5. Quit");
+    }

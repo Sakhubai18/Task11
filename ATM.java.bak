@@ -1,0 +1,111 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class ATM {
+    private Map<String, User> users;
+    private User currentUser;
+    
+    public ATM() {
+        users = new HashMap<>();
+        users.put("user1", new User("user1", 1234)); // Example user account
+    }
+    
+    public boolean authenticateUser(String userId, int pin) {
+        User user = users.get(userId);
+        return user != null && user.authenticate(pin);
+    }
+    
+    public void setCurrentUser(String userId) {
+        currentUser = users.get(userId);
+    }
+    
+    public void displayTransactionHistory() {
+        if (currentUser != null) {
+            System.out.println("Transaction History for User: " + currentUser.getUserId());
+            System.out.println(currentUser.getTransactionHistory());
+        }
+    }
+    
+    public void withdraw(Scanner scanner) {
+        if (currentUser != null) {
+            System.out.print("Enter the amount to withdraw: ");
+            double amount = scanner.nextDouble();
+            scanner.nextLine(); // Consume the newline character
+
+            if (amount <= 0) {
+                System.out.println("Invalid amount. Please try again.");
+                return;
+            }
+
+            double currentBalance = currentUser.getBalance();
+            if (amount > currentBalance) {
+                System.out.println("Insufficient balance.");
+                return;
+            }
+
+            currentUser.updateBalance(-amount);
+            currentUser.addToTransactionHistory("Withdraw: -" + amount);
+            System.out.println("Withdrawal successful.");
+        } else {
+            System.out.println("No user logged in.");
+        }
+    }
+    
+    public void deposit(Scanner scanner) {
+        if (currentUser != null) {
+            System.out.print("Enter the amount to deposit: ");
+            double amount = scanner.nextDouble();
+            scanner.nextLine(); // Consume the newline character
+
+            if (amount <= 0) {
+                System.out.println("Invalid amount. Please try again.");
+                return;
+            }
+
+            currentUser.updateBalance(amount);
+            currentUser.addToTransactionHistory("Deposit: +" + amount);
+            System.out.println("Deposit successful.");
+        } else {
+            System.out.println("No user logged in.");
+        }
+    }
+    
+    public void transfer(Scanner scanner) {
+        if (currentUser != null) {
+            System.out.print("Enter the recipient's user ID: ");
+            String recipient = scanner.nextLine();
+
+            if (!users.containsKey(recipient)) {
+                System.out.println("Recipient user ID does not exist.");
+                return;
+            }
+
+            System.out.print("Enter the amount to transfer: ");
+            double amount = scanner.nextDouble();
+            scanner.nextLine(); // Consume the newline character
+
+            if (amount <= 0) {
+                System.out.println("Invalid amount. Please try again.");
+                return;
+            }
+
+            double currentBalance = currentUser.getBalance();
+            if (amount > currentBalance) {
+                System.out.println("Insufficient balance.");
+                return;
+            }
+
+            currentUser.updateBalance(-amount);
+            currentUser.addToTransactionHistory("Transfer to " + recipient + ": -" + amount);
+
+            User recipientUser = users.get(recipient);
+            recipientUser.updateBalance(amount);
+            recipientUser.addToTransactionHistory("Transfer from " + currentUser.getUserId() + ": +" + amount);
+
+            System.out.println("Transfer successful.");
+        } else {
+            System.out.println("No user logged in.");
+        }
+    }
+}
